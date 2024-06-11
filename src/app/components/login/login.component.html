@@ -1,0 +1,31 @@
+<div class="login-container">
+
+  <div *ngIf="isLoggedIn" class="loadersytems"></div>
+
+  <form class="login-form"  #loginForm="ngForm" *ngIf="!isLoggedIn">
+    <span style="justify-content: center;display: flex;margin-bottom: 10px;"><img src="../../../assets/img/logo-laas.png" alt=""></span>
+    <h2>Welcome</h2>
+    <!-- <h2>Login</h2> -->
+    <div class="form-group">
+      <label for="staffNo">Username:</label>
+      <input type="text" id="staffNo" name="staffNo" [(ngModel)]="staffNo" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <div class="password-input">
+        <input type="{{ showPassword ? 'text' : 'password' }}" id="password" name="password" [(ngModel)]="password"
+          required>
+        <span class="toggle-btn" (click)="togglePasswordVisibility()">
+          <i class="fa" [ngClass]="{ 'fa-eye': !showPassword, 'fa-eye-slash': showPassword }"></i>
+        </span>
+      </div>
+    </div>
+    <!-- <button type="submit" [disabled]="loginForm.invalid || loading">
+      <span *ngIf="!loading">Login</span>
+      <span *ngIf="loading">Logging in......</span>
+    </button> -->
+    <button type="submit" [routerLink]="['',{ outlets: { primary: 'dashboard', outlet1:null } }]">
+      Login
+    </button>
+  </form>
+</div>

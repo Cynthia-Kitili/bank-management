@@ -1,0 +1,135 @@
+.bank-list-container {
+    background: transparent;
+    font-family: 'Trebuchet MS';
+}
+
+/* mat-form-field {
+    width: 100%;
+    margin-bottom: 20px;
+} */
+
+
+
+.filter-pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    /* margin-bottom: 1px; */
+}
+
+.filter,
+.pagination {
+    /* flex: 1; */
+    margin-right: 10px;
+}
+
+table {
+    width: 100%;
+}
+
+.mat-column-name,
+.mat-column-branch,
+.mat-column-address {
+    text-align: left;
+}
+
+table th {
+    background: rgb(234, 234, 234);
+    font-size: 15px;
+    font-weight: 800;
+}
+
+table td {
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+}
+
+.custom-loader {
+    border: 16px solid #f3f3f3;
+    /* Light grey */
+    border-top: 16px solid #000000;
+    /* Blue */
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.custom-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.form {
+    width: 100%;
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.form-field {
+    width: calc(50% - 10px);
+    /* Adjust the width as needed */
+}
+
+button[type="submit"] {
+    margin-top: 20px;
+}
+
+.mat-error {
+    font-size: 12px;
+    color: red;
+    margin-top: 5px;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Adjust opacity as needed */
+    z-index: 1040;
+    /* Ensure this is below the modal z-index */
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    /* Ensure this is above the backdrop z-index */
+}

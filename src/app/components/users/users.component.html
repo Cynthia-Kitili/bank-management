@@ -1,0 +1,304 @@
+<div class="bank-list-container">
+    <div class="filter-pagination-container" *ngIf="!addBankAdminForm && !editBankAdminForm">
+        <div class="filter">
+            <h1>Bank Admins</h1>
+        </div>
+        <div class="pagination">
+            <button type="submit" class="btn btn-dark" (click)="showAddBankAdminForm()">Add Bank Admin</button>
+
+        </div>
+    </div>
+    <div class="filter-pagination-container" *ngIf="!addBankAdminForm && !editBankAdminForm">
+        <div class="filter">
+            <mat-form-field appearance="outline">
+                <mat-label>Filter</mat-label>
+                <input matInput (keyup)="applyFilter($event)" placeholder="Search for a bank">
+            </mat-form-field>
+        </div>
+        <div class="pagination">
+            <mat-paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+            &nbsp;
+            <span (click)="exportToExcel()" style="margin-top: 10px;cursor: pointer;">
+                <img src="../../../assets/images/office365.png" alt="" width="35" >                
+            </span>
+
+        </div>
+    </div>
+
+    <div class="loader-overlay" *ngIf="loading">
+        <div class="custom-loader"></div>
+    </div>
+
+    <table mat-table id="bankadmins-table" [dataSource]="dataSource" matSort class="mat-elevation-z0"
+        *ngIf="!addBankAdminForm && !editBankAdminForm">
+
+        <!-- fullname Column -->
+        <ng-container matColumnDef="fullname">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Full name </th>
+            <td mat-cell *matCellDef="let element"> {{element.fullname}} </td>
+        </ng-container>
+
+        <!-- bankCode Column -->
+        <ng-container matColumnDef="bankCode">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Bank Code </th>
+            <td mat-cell *matCellDef="let element"> {{element.bankCode}} </td>
+        </ng-container>
+
+        <!-- bankName Column -->
+        <ng-container matColumnDef="bankName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Bank Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.bankName}} </td>
+        </ng-container>
+
+        <!-- gender Column -->
+        <ng-container matColumnDef="gender">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Gender </th>
+            <td mat-cell *matCellDef="let element"> {{element.gender}} </td>
+        </ng-container>
+
+
+        <!-- Contact Column -->
+        <ng-container matColumnDef="contact">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Contact </th>
+            <td mat-cell *matCellDef="let element"> {{element.contact}} </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+            <td mat-cell *matCellDef="let element">
+                <ng-container *ngIf="element.status === 0"> Inactive </ng-container>
+                <ng-container *ngIf="element.status === 1"> Active </ng-container>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let row">
+                <p mat-icon-button [matMenuTriggerFor]="menu">
+                    <mat-icon>keyboard_arrow_down</mat-icon>
+                </p>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="showEditBankAdminForm(row);">
+                        <mat-icon>edit</mat-icon> Edit
+                    </button>
+                    <button mat-menu-item *ngIf="row.status == 1" (click)="deactivateModal(row.fullname)">
+                        <mat-icon>delete</mat-icon> Deactivate
+                    </button>
+
+                    <button mat-menu-item *ngIf="row.status == 0" (click)="activateModal(row.fullname)">
+                        <mat-icon>done_all</mat-icon> Activate
+                    </button>
+                </mat-menu>
+            </td>
+        </ng-container>
+
+        <!-- Table Header and Rows -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+
+    <div class="bank-form" *ngIf="addBankAdminForm">
+        <div class="filter-pagination-container">
+            <div class="filter">
+                <h1>Add Bank Admin</h1>
+            </div>
+            <div class="pagination">
+                <button type="button" class="close btn btn-dark" data-dismiss="modal" aria-label="Close"
+                    (click)="hideAddBankAdminForm()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+        <div class="custom-form">
+            <div class="form">
+                <form [formGroup]="bankAdminForm" (ngSubmit)="onSubmit()">
+                    <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Full Name</mat-label>
+                            <input matInput formControlName="fullname" placeholder="Full Name">
+                            <mat-error *ngIf="bankAdminForm.get('fullname')?.invalid && bankAdminForm.get('fullname')?.touched">
+                                Full Name is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Bank Code</mat-label>
+                            <input matInput formControlName="bankCode" placeholder="Bank Code">
+                            <mat-error *ngIf="bankAdminForm.get('bankCode')?.invalid && bankAdminForm.get('bankCode')?.touched">
+                                Bank Code is required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Bank Name</mat-label>
+                            <input matInput formControlName="bankName" placeholder="Bank Name">
+                            <mat-error *ngIf="bankAdminForm.get('bankName')?.invalid && bankAdminForm.get('bankName')?.touched">
+                                Bank Name is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Gender</mat-label>
+                            <input matInput formControlName="gender" placeholder="Gender">
+                            <mat-error *ngIf="bankAdminForm.get('gender')?.invalid && bankAdminForm.get('gender')?.touched">
+                                Gender is required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Status</mat-label>
+                            <mat-select formControlName="status" placeholder="Status">
+                              <mat-option [value]="1">Active</mat-option>
+                              <mat-option [value]="0">Inactive</mat-option>
+                            </mat-select>
+                            <mat-error *ngIf="bankAdminForm.get('status')?.invalid && bankAdminForm.get('status')?.touched">
+                              Status is required
+                            </mat-error>
+                          </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Contact</mat-label>
+                            <input matInput formControlName="contact" placeholder="Contact">
+                            <mat-error *ngIf="bankAdminForm.get('contact')?.invalid && bankAdminForm.get('contact')?.touched">
+                                Contact is required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <button mat-raised-button color="primary" type="submit" class="btn btn-dark">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="bank-form" *ngIf="editBankAdminForm">
+        <div class="filter-pagination-container">
+            <div class="filter">
+                <h1>Edit Bank Details</h1>
+            </div>
+            <div class="pagination">
+                <button type="button" class="close btn btn-dark" data-dismiss="modal" aria-label="Close"
+                    (click)="hideEditBankAdminForm()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+        <div class="custom-form">
+            <div class="form">
+                <form [formGroup]="bankAdminForm" (ngSubmit)="onSubmit()">
+                    <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Full Name</mat-label>
+                            <input matInput formControlName="fullname" placeholder="Full Name">
+                            <mat-error *ngIf="bankAdminForm.get('fullname')?.invalid && bankAdminForm.get('fullname')?.touched">
+                                Full Name is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Bank Code</mat-label>
+                            <input matInput formControlName="bankCode" placeholder="Bank Code">
+                            <mat-error *ngIf="bankAdminForm.get('bankCode')?.invalid && bankAdminForm.get('bankCode')?.touched">
+                                Bank Code is required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Bank Name</mat-label>
+                            <input matInput formControlName="bankName" placeholder="Bank Name">
+                            <mat-error *ngIf="bankAdminForm.get('bankName')?.invalid && bankAdminForm.get('bankName')?.touched">
+                                Bank Name is required
+                            </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Gender</mat-label>
+                            <input matInput formControlName="gender" placeholder="Gender">
+                            <mat-error *ngIf="bankAdminForm.get('gender')?.invalid && bankAdminForm.get('gender')?.touched">
+                                Gender is required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Status</mat-label>
+                            <mat-select formControlName="status" placeholder="Status">
+                              <mat-option [value]="1">Active</mat-option>
+                              <mat-option [value]="0">Inactive</mat-option>
+                            </mat-select>
+                            <mat-error *ngIf="bankAdminForm.get('status')?.invalid && bankAdminForm.get('status')?.touched">
+                              Status is required
+                            </mat-error>
+                          </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Contact</mat-label>
+                            <input matInput formControlName="contact" placeholder="Contact">
+                            <mat-error *ngIf="bankAdminForm.get('contact')?.invalid && bankAdminForm.get('contact')?.touched">
+                                Contact is required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+
+                    <button mat-raised-button color="primary" type="submit" class="btn btn-dark">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="activate modal" id="activateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Activate</h5>
+                    <!-- <button type="button" class="close btn btn-dark"  data-dismiss="modal" aria-label="Close"
+                        (click)="closeActivateModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button> -->
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to activate : <b>{{selectedName }}</b> ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeActivateModal()">No</button>
+                    <button type="button" class="btn btn-success">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="deactivate modal" id="deactivateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Deactivate</h5>
+                    <!-- <button type="button" class="close btn btn-dark" data-dismiss="modal" aria-label="Close"
+                        (click)="closeDeactivateModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button> -->
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to deactivate : <b>{{selectedName }}</b> ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeDeactivateModal()">No</button>
+                    <button type="button" class="btn btn-danger">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

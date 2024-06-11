@@ -1,0 +1,105 @@
+<nav class="navbar navbar-expand-lg ">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-mdb-toggle="collapse"
+            data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <a class="navbar-brand mt-2 mt-lg-0">
+                &nbsp;
+                <a (click)="toggleCollapse()" style="cursor: pointer;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 18H21V16H3V18ZM3 13H21V11H3V13ZM3 6V8H21V6H3Z" fill="black" fill-opacity="1" />
+                    </svg>
+                </a>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <!-- <img src="../../../assets/images/logo.png" height="30" width="105" alt="KCB" loading="lazy" /> -->
+                CENTRAL BANK OF KENYA
+            </a>
+        </div>
+        <div class="row mr-2 ml-auto">
+            <ul class="row m-0 align-items-center">
+                <a mat-button [matMenuTriggerFor]="menu" class="user mt-2 d-flex align-items-center"
+                    style="text-decoration: none;">
+                    <img src="../../../assets/images/account-user.png" alt="" width="42" height="35">
+                    <span
+                        style="color: rgb(0, 0, 0); text-transform: uppercase; text-decoration: none !important; background: transparent;">{{userName}}</span>
+                    &nbsp;
+                    <span class="user-image-icon ml-1" alt="^">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M5 9H19L12.707 15.293C12.5195 15.4805 12.2652 15.5858 12 15.5858C11.7348 15.5858 11.4805 15.4805 11.293 15.293L5 9Z"
+                                fill="#374957" />
+                        </svg>
+                    </span>
+                </a>
+                <mat-menu #menu="matMenu" >
+                    <button mat-menu-item style="font-weight: 600;">Change Password</button>
+                    <button mat-menu-item style="font-weight: 600;">Logout</button>
+                </mat-menu>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div class="sidenav" [ngClass]="collapsed ? 'sidenav-collapsed': ''">
+    <!-- <div class="logo-container">
+        <button class="logo" (click)="toggleCollapse()">
+            <img src="../../../assets/images/fi-ss-stop.png">
+        </button>
+        <div class="logo-text" @fadeInOut *ngIf="collapsed"> S&L </div>
+        <button class="btn-close" *ngIf="collapsed" @rotate (click)="closeSidenav()">
+            <i class="fal fa-times close-icon"></i>
+        </button>
+    </div> -->
+
+    <div class="scrollwrap scrollwrap_delayed">
+        <ul class="sidenav-nav">
+            <li class="sidenav-nav-item" *ngFor="let data of navData;">
+                <a class="sidenav-nav-link" (click)="handleClick(data)" *ngIf="data.items && data.items.length > 0"
+                    [ngClass]="getActiveClass(data)">
+                    <!-- <i class="sidenav-link-icon" [ngClass]="[data.icon]"></i> -->
+                    <img class="sidenav-link-icon" src="{{data.icon}}" alt="">
+                    <span class="sidenav-link-text" @fadeInOut *ngIf="collapsed">
+                        {{ data.label }}
+                    </span>
+                    <!-- <i *ngIf="data.items && collapsed" class="menu-collapse-icon"
+                        [ngClass]="!data.expanded ? 'fal fa-angle-right' : 'fal fa-angle-down'"
+                    ></i> -->
+                    <i *ngIf="data.items && collapsed" class="menu-collapse-icon">
+                        <svg *ngIf="!data.expanded" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M10.8111 18.707L9.40015 17.293L14.6891 12L9.40015 6.70697L10.8151 5.29297L16.1001 10.586C16.4751 10.961 16.6857 11.4696 16.6857 12C16.6857 12.5303 16.4751 13.0389 16.1001 13.414L10.8111 18.707Z"
+                                fill="#374957" />
+                        </svg>
+                        <svg *ngIf="data.expanded" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none">
+                            <path d="M12 8.29492L6 14.2949L7.41 15.7049L12 11.1249L16.59 15.7049L18 14.2949L12 8.29492Z"
+                                fill="black" fill-opacity="0.56" />
+                        </svg>
+                    </i>
+                </a>
+                <a class="sidenav-nav-link" *ngIf="!data.items || (data.items && data.items.length === 0)"
+                    [routerLink]="[data.routeLink]" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                    <!-- <i class="sidenav-link-icon">{{ data.label.charAt(0).toUpperCase() }}</i> -->
+                    <!-- <i class="sidenav-link-icon" [ngClass]="[data.icon]"></i> -->
+                    <img class="sidenav-link-icon" src="{{data.icon}}" alt="">
+                    <span class="sidenav-link-text" @fadeInOut *ngIf="collapsed">
+                        {{ data.label }}
+                    </span>
+                </a>
+                <div *ngIf="collapsed && data.items && data.items.length > 0">
+                    <app-sublevel-menu [data]="data" [collapsed]="collapsed" [multiple]="multiple"
+                        [expanded]="data.expanded">
+                    </app-sublevel-menu>
+                </div>
+            </li>
+        </ul>
+
+    </div>
+
+
+</div>

@@ -1,0 +1,148 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+  /* Light gray background */
+}
+
+.login-form {
+  width: 380px;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #000000;
+  /* Dark gray text color */
+}
+h5 {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #333;
+  /* Dark gray text color */
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #000000;
+  /* Medium gray text color */
+}
+
+input {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #ddd;
+  /* Light gray border */
+  border-radius: 5px;
+  transition: border-color 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #007bff;
+  /* Blue border color on focus */
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  background-color: #000000;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+button:hover {
+  background-color: #000000;
+  /* Darker blue color on hover */
+}
+
+.additional-links {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.additional-links a {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.additional-links a:hover {
+  color: #0056b3;
+  /* Darker blue color on hover */
+}
+
+.password-input {
+  position: relative;
+}
+
+.password-input input {
+  padding-right: 30px;
+  /* Adjust this value according to the icon size */
+}
+
+.password-input .toggle-btn {
+  position: absolute;
+  right: 15px;
+  /* Adjust this value to position the icon inside the input */
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.password-input .toggle-btn i {
+  font-size: 16px;
+  /* Adjust this value to change the size of the icon */
+}
+input{
+  border: black solid 1px;
+  border-radius: 3px;
+}
+input:focus{
+  border: black solid 1px;
+  border-radius: 3px;
+}
+
+.loadersytems {
+  /* border: 4px solid #ffffff;  */
+  border-top: 4px solid #003d4c;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-top: -20px;
+  margin-left: -20px;
+}
+
+@keyframes spin {
+  0% {
+      transform: rotate(0deg);
+  }
+
+  100% {
+      transform: rotate(360deg);
+  }
+}

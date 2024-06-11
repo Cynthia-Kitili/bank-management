@@ -14,6 +14,17 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
+## Installations
+ng add @angular/material
+npm install ngx-toastr --save
+npm install @angular/animations --save
+npm i bootstrap@5.3.3
+npm install crypto-js
+npm install --save @types/crypto-js
+npm install bn-ng-idle
+npm install apexcharts ng-apexcharts --save 
+npm install xlsx --save
+
 ## Running unit tests
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
