@@ -3,35 +3,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { Router, ActivatedRoute } from '@angular/router';
+import { BankAdmin } from 'src/app/models/sheet.model';
+import { SheetService } from 'src/app/services/sheet.service';
 import * as XLSX from 'xlsx';
 
-export interface BankAdmin {
-  fullname: string;
-  bankCode: string;
-  bankName: string;
-  gender: string;
-  contact: string;
-  status:number;
-}
 
-const BANKADMIN_DATA: BankAdmin[] = [
-  {fullname: 'Rajesh K', bankCode: 'BOA123', bankName: 'Bank of America', gender: 'F',contact: '123-456-7890',status:1},
-  {fullname: 'Penny W', bankCode: 'CHASE456', bankName: 'Chase Bank', gender: 'M', contact: '234-567-8901',status:0},
-  {fullname: 'Sheldon J', bankCode: 'WF789', bankName: 'Wells Fargo', gender: 'M',  contact: '345-678-9012',status:1},
-  {fullname: 'Leonard B', bankCode: 'BOA123', bankName: 'Bank of America', gender: 'F', contact: '123-456-7890',status:0},
-  {fullname: 'Bernaddete R', bankCode: 'CHASE456', bankName: 'Chase Bank', gender: 'M', contact: '234-567-8901',status:0},
-  {fullname: 'Ammy K', bankCode: 'WF789', bankName: 'Wells Fargo', gender: 'M', contact: '345-678-9012',status:1},
-  {fullname: 'Howard L', bankCode: 'BOA123', bankName: 'Bank of America', gender: 'F', contact: '123-456-7890',status:0},
-  {fullname: 'Bert B', bankCode: 'CHASE456', bankName: 'Chase Bank', gender: 'M', contact: '234-567-8901',status:1},
-  {fullname: 'Rajesh K', bankCode: 'BOA123', bankName: 'Bank of America', gender: 'F',contact: '123-456-7890',status:1},
-  {fullname: 'Penny W', bankCode: 'CHASE456', bankName: 'Chase Bank', gender: 'M', contact: '234-567-8901',status:0},
-  {fullname: 'Sheldon J', bankCode: 'WF789', bankName: 'Wells Fargo', gender: 'M',  contact: '345-678-9012',status:1},
-  {fullname: 'Leonard B', bankCode: 'BOA123', bankName: 'Bank of America', gender: 'F', contact: '123-456-7890',status:0},
-  {fullname: 'Bernaddete R', bankCode: 'CHASE456', bankName: 'Chase Bank', gender: 'M', contact: '234-567-8901',status:0},
-  {fullname: 'Ammy K', bankCode: 'WF789', bankName: 'Wells Fargo', gender: 'M', contact: '345-678-9012',status:1},
-  {fullname: 'Howard L', bankCode: 'BOA123', bankName: 'Bank of America', gender: 'F', contact: '123-456-7890',status:0},
-  {fullname: 'Bert B', bankCode: 'CHASE456', bankName: 'Chase Bank', gender: 'M', contact: '234-567-8901',status:1},
-];
+
 
 @Component({
   selector: 'app-users',
@@ -39,11 +17,12 @@ const BANKADMIN_DATA: BankAdmin[] = [
   styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit {
-  displayedColumns: string[] = ['actions','fullname', 'bankCode', 'bankName', 'gender', 'contact','status'];
+  displayedColumns: string[] = ['actions','uniqueid', 'name','email', 'password','role', 'status','firstTimeLogin', 'bankCode', 'bankName' ];
   dataSource = new MatTableDataSource<BankAdmin>();
   loading = false;
 
   bankAdminForm!: FormGroup;
+  bankEditAdminForm!: FormGroup;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -55,26 +34,58 @@ export class UsersComponent implements OnInit {
   selectedName: any;
   showDeactivateModal: any;
   showActivateModal: any;
+  data: any;
+  loadingForm: any;
+  selectedContact: any;
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: FormBuilder, private sheetservice: SheetService, private router: Router,private actRoute: ActivatedRoute,) {
     this.bankAdminForm = this.formBuilder.group({
-      fullname: ['', Validators.required],
+      uniqueid: ['', Validators.required],
+      name: ['', Validators.required],
+      email: ['', Validators.required],
+      password: ['', Validators.required],
+      role: ['', Validators.required],
+      status: ['', Validators.required],
+      firstTimeLogin: [true],
       bankCode: ['', Validators.required],
       bankName: ['', Validators.required],
-      gender: ['', Validators.required],
-      contact: ['', Validators.required],
-      status: ['', Validators.required]
+    });
+    this.bankEditAdminForm = this.formBuilder.group({
+      uniqueid: ['', Validators.required],
+      name: ['', Validators.required],
+      email: ['', Validators.required],
+      password: ['', Validators.required],
+      role: ['', Validators.required],
+      status: ['', Validators.required],
+      firstTimeLogin: ['', Validators.required],
+      bankCode: ['', Validators.required],
+      bankName: ['', Validators.required],
     });
   }
 
   ngOnInit() {
+    this.listData();
+  }
+
+
+  listData() {
     this.loading = true;
-    setTimeout(() => {
-      this.loading = false;
-      this.dataSource.data = BANKADMIN_DATA;
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    }, 500); 
+    this.sheetservice.listUserSheet().subscribe({
+      next: (res) => {
+        console.log(res);
+        this.data = res;
+        console.log('bank data',this.data)
+        setTimeout(() => {
+          this.loading = false;
+          this.dataSource.data = this.data;
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        }, 500);
+      },
+      error: (error) => {
+        console.log(error);
+      },
+    });
   }
 
   applyFilter(event: Event) {
@@ -101,13 +112,16 @@ export class UsersComponent implements OnInit {
     this.selectedRowData = rowData; // Assign the selected row's data to the property
     this.editBankAdminForm = true;
     // Pre-fill the form fields with the data of the selected row
-    this.bankAdminForm.patchValue({
-      fullname: rowData.fullname,
+    this.bankEditAdminForm.patchValue({
+      uniqueid: rowData.uniqueid,
+      name: rowData.name,
+      email: rowData.email,
+      password: rowData.password,
+      role: rowData.role,
+      status: rowData.status,
+      firstTimeLogin: rowData.firstTimeLogin,
       bankCode: rowData.bankCode,
       bankName: rowData.bankName,
-      gender: rowData.gender,
-      contact: rowData.contact,
-      status: rowData.status
     });
     
   }
@@ -150,16 +164,106 @@ export class UsersComponent implements OnInit {
     modal?.setAttribute('style', 'display: none;');
     this.selectedName = '';
   }
+  deleteModal(userfullname: string,contact:any) {
+    this.selectedName = userfullname;
+    this.selectedContact = contact;
+    const modal = document.getElementById('deleteModal');
+    modal?.classList.add('show');
+    modal?.setAttribute('aria-modal', 'true');
+    modal?.setAttribute('style', 'display: block;');
+  }
+
+  closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal?.classList.remove('show');
+    modal?.setAttribute('aria-modal', 'false');
+    modal?.setAttribute('style', 'display: none;');
+    this.selectedName = '';
+    setTimeout(() => {
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }, 200);
+  }
+  deleteSheet() {
+    this.loadingForm = true;
+    const index = this.data.findIndex((user: any) => user.contact === this.selectedContact);
+    this.sheetservice.deleteUserSheet(index).subscribe(
+      (res: any) => {
+        this.loadingForm = false;
+        console.log(res);
+        this.listData();
+        this.closeDeleteModal();
+      },
+      (error) => {
+        this.loadingForm = false;
+        console.log(error);
+      }
+    );
+    console.log(this.selectedContact);
+  }
+
 
   onSubmit() {
     if (this.bankAdminForm.valid) {
+      this.loadingForm = true;
+      const formValue = this.bankAdminForm.value;
+      console.log('Form value before posting:', formValue);
+  
+      const { uniqueid, name,email, password,role, status,firstTimeLogin, bankCode, bankName} = formValue;
+  
+      this.sheetservice.createUserSheet(uniqueid, name,email, password,role, status,firstTimeLogin, bankCode, bankName).subscribe({
+        next: (res) => {
+          console.log('Create response:', res);
+          if (res) {
+            this.loadingForm = false;
+            this.listData();
+            this.hideAddBankAdminForm();
+          }
+        },
+        error: (error) => {
+          this.loadingForm = false;
+          console.error('Error creating sheet:', error);
+        }
+      });
+    } else {
+      this.loadingForm = false;
+      console.log("Form is invalid!");
+    }
+  }
+
+  onEdit() {
+    if (this.bankEditAdminForm.valid) {
+      this.loadingForm= true;
       // Proceed with form submission
-      console.log(this.bankAdminForm.value);
+      console.log(this.bankEditAdminForm.value);
+
+      const formValue = this.bankEditAdminForm.value;
+      console.log('Form value before posting:', formValue);
+  
+      const { uniqueid, name,email, password,role, status,firstTimeLogin, bankCode, bankName} = formValue;
+      const index = this.data.findIndex((user: any) => user.uniqueid === uniqueid);
+
+      this.sheetservice.updateUserSheet(index,uniqueid, name,email, password,role, status,firstTimeLogin, bankCode, bankName).subscribe({
+        next: (res) => {
+          console.log(res);
+          if (res) {
+            this.loadingForm= false;
+            this.listData();
+            this.hideEditBankAdminForm();
+          }
+        },
+        error: (error) => {
+          this.loadingForm= false;
+          console.log(error);
+        },
+      });
     } else {
       // Display error messages or handle invalid form
       console.log("Form is invalid!");
     }
   }
+
+
 
 
   exportToExcel(): void {

@@ -1,31 +1,34 @@
 <div class="login-container">
+  <div class="container login-form mt-5" *ngIf="!changePassword">
+    <h2>Login</h2>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <mat-form-field class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email">
+      </mat-form-field>
+      <br>
+      <mat-form-field class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password">
+      </mat-form-field>
+      <button mat-raised-button color="primary" type="submit">
+        <span *ngIf="!loading">Login</span>
+        <span *ngIf="loading">Processing....</span>
+      </button>
+    </form>
+  </div>
 
-  <div *ngIf="isLoggedIn" class="loadersytems"></div>
-
-  <form class="login-form"  #loginForm="ngForm" *ngIf="!isLoggedIn">
-    <span style="justify-content: center;display: flex;margin-bottom: 10px;"><img src="../../../assets/img/logo-laas.png" alt=""></span>
-    <h2>Welcome</h2>
-    <!-- <h2>Login</h2> -->
-    <div class="form-group">
-      <label for="staffNo">Username:</label>
-      <input type="text" id="staffNo" name="staffNo" [(ngModel)]="staffNo" required>
-    </div>
-    <div class="form-group">
-      <label for="password">Password:</label>
-      <div class="password-input">
-        <input type="{{ showPassword ? 'text' : 'password' }}" id="password" name="password" [(ngModel)]="password"
-          required>
-        <span class="toggle-btn" (click)="togglePasswordVisibility()">
-          <i class="fa" [ngClass]="{ 'fa-eye': !showPassword, 'fa-eye-slash': showPassword }"></i>
-        </span>
-      </div>
-    </div>
-    <!-- <button type="submit" [disabled]="loginForm.invalid || loading">
-      <span *ngIf="!loading">Login</span>
-      <span *ngIf="loading">Logging in......</span>
-    </button> -->
-    <button type="submit" [routerLink]="['',{ outlets: { primary: 'dashboard', outlet1:null } }]">
-      Login
-    </button>
-  </form>
+  <div class="container password-form " *ngIf="changePassword">
+    <h2>Change Password</h2>
+    <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePasswordSubmit()">
+      <mat-form-field class="full-width">
+        <mat-label>New Password</mat-label>
+        <input matInput type="password" formControlName="newPassword">
+      </mat-form-field>
+      <button mat-raised-button color="primary" type="submit">
+        <span *ngIf="!loading">Login</span>
+        <span *ngIf="loading">Processing....</span>
+      </button>
+    </form>
+  </div>
 </div>

@@ -1,5 +1,9 @@
 import { Component } from '@angular/core';
+import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Auth } from 'src/app/models/sheet.model';
+import { AuthService } from 'src/app/services/auth.service';
+import { SheetService } from 'src/app/services/sheet.service';
 
 @Component({
   selector: 'app-login',
@@ -13,57 +17,97 @@ export class LoginComponent {
   loading: any;
   showPassword: boolean = false;
   isLoggedIn: any;
+  changePassword:any;
+
+  changePasswordForm: FormGroup;
+  userId: any;
+
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private sheetservice: SheetService
+  ) {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
+    this.changePasswordForm = this.fb.group({
+      newPassword: ['', Validators.required]
+    });
+  }
 
 
-  constructor( private router: Router) { }
 
   ngOnInit(): void {
-    sessionStorage.setItem('username','Cindy K');
-    sessionStorage.setItem('permission','ADMIN');
+
     // sessionStorage.setItem('username','BANK ADMIN');
   }
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
-  // login() {
-  //   this.loading = true;
-  //   const encryptStaffNo = this.encryptionService.encrypt(this.staffNo);
-  //   const encryptedPassword = this.encryptionService.encrypt(this.password);
-  //   const body = {
-  //     requestId: 'Req1234567',
-  //     channelName: 'USSD',
-  //     timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
-  //     partnerId: 'VYS2024',
-  //     additionalData: {
-  //       staffNo: encryptStaffNo,
-  //       password: encryptedPassword
-  //     }
-  //   };
+  loginForm: FormGroup;
 
-  //   this.loginService.login(body).subscribe(response => {
-  //     if (response.statusCode === '00') {
-  //       // Store additional data
-  //       const additionalData = response.additionalData;
-  //       sessionStorage.setItem('additionalData', JSON.stringify(additionalData));
 
-  //       // Show success Toastr message
-  //       this.toastr.success(response.statusMessage, 'Login Successful');
 
-  //       // Redirect to dashboard page
-  //       this.router.navigate(['',{ outlets: { primary: 'dashboard', outlet1:null } }]);
-  //       this.loading = false;
-  //     } else {
-  //       // Show error Toastr message
-  //       this.toastr.error(response.statusMessage, 'Login Failed');
-  //       this.loading = false;
-  //       sessionStorage.clear();
-  //     }
-  //   }, error => {
-  //     this.toastr.error(error.error.statusMessage, 'Server Error');
-  //     this.loading = false;
-  //     sessionStorage.clear();
-  //   });
-  // }
+  onSubmit(): void {
+    if (this.loginForm.valid) {
+      this.loading = true;
+      const auth: Auth = this.loginForm.value;
+      this.authService.login(auth).subscribe(user => {
+        this.loading = false;
+        console.log('auth',auth)
+        console.log('user',user)
+        if (user) {
+          if (user.firstTimeLogin === true) {
+            this.changePassword = true;
+          } else {
+            this.router.navigate(['',{ outlets: { primary: 'dashboard', outlet1:null } }]);
+            this.userId = user.uniqueid
+            sessionStorage.setItem('username', user.name);
+            sessionStorage.setItem('permission', user.role);
+            sessionStorage.setItem('bankCode', user.bankCode);
+          }
+        } else {
+          alert('Login Error')
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  onChangePasswordSubmit(): void {
+    if (this.changePasswordForm.valid) {
+      this.loading = true;
+      const newPassword = this.changePasswordForm.value.newPassword;
+      if (this.userId) {
+        // Fetch the user by ID first
+        this.sheetservice.getUserSheetDataById(this.userId).subscribe(user => {
+          this.loading = false;
+          if (user) {
+            // User found, proceed to change password
+            this.authService.changePassword(this.userId, newPassword).subscribe(() => {
+              
+              alert('Password Changed Successfully');
+              this.changePassword = false;
+            });
+          } else {
+            alert('User not found');
+          }
+        }, error => {
+          alert('Error fetching user');
+          this.loading = false;
+        });
+      } else {
+        alert('Password Change Error');
+        this.loading = false;
+      }
+    } else {
+      alert('Password Change Error');
+      this.loading = false;
+    }
+  }
+
 }
 
 

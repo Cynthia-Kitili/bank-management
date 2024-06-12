@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { animate, keyframes, style, transition, trigger } from '@angular/animations';
 import { navbarData } from './nav-data';
 import { INavbarData, fadeInOut } from './helper';
+import { AuthService } from 'src/app/services/auth.service';
 
 interface SideNavToogle {
 
@@ -58,7 +59,7 @@ export class SidebarComponent implements OnInit {
     }
 
   }
-  constructor(private router: Router) { }
+  constructor(private router: Router,private authService: AuthService) { }
 
 
   ngOnInit(): void {
@@ -112,7 +113,8 @@ export class SidebarComponent implements OnInit {
     this.navData = filteredNavbarData;
   }
 
-  logout(){
+  logout(): void {
+    this.authService.logout();
     sessionStorage.clear();
     this.router.navigate(['']);
   }

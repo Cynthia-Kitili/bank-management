@@ -109,6 +109,7 @@
                     <button mat-menu-item (click)="showEditCustomerForm(row);">
                         <mat-icon>edit</mat-icon> Edit
                     </button>
+                    
                     <button mat-menu-item *ngIf="row.status == 1" (click)="deactivateModal(row.name)">
                         <mat-icon>delete</mat-icon> Deactivate
                     </button>

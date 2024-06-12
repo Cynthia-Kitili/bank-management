@@ -6,15 +6,16 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { BanksComponent } from './components/banks/banks.component';
 import { CustomersComponent } from './components/customers/customers.component';
 import { UsersComponent } from './components/users/users.component';
+import { AuthGuard } from './services/auth.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full', outlet: 'outlet1' },
   { path: 'login', component: LoginComponent, pathMatch: 'full', outlet: 'outlet1' },
 
-  { path: 'dashboard', component: DashboardComponent},
-  { path: 'banks', component: BanksComponent},
-  { path: 'customers', component: CustomersComponent},
-  { path: 'users', component: UsersComponent},
+  { path: 'dashboard', component: DashboardComponent,canActivate:[AuthGuard]},
+  { path: 'banks', component: BanksComponent,canActivate:[AuthGuard]},
+  { path: 'customers', component: CustomersComponent,canActivate:[AuthGuard]},
+  { path: 'users', component: UsersComponent,canActivate:[AuthGuard]},
   
   
 ]

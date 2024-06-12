@@ -19,7 +19,7 @@
             <mat-paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
             &nbsp;
             <span (click)="exportToExcel()" style="margin-top: 10px;cursor: pointer;">
-                <img src="../../../assets/images/office365.png" alt="" width="35" >                
+                <img src="../../../assets/images/office365.png" alt="" width="35">
             </span>
 
         </div>
@@ -71,9 +71,9 @@
         <!-- Status Column -->
         <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-            <td mat-cell *matCellDef="let element">
-                <ng-container *ngIf="element.status === 0"> Inactive </ng-container>
-                <ng-container *ngIf="element.status === 1"> Active </ng-container>
+            <td mat-cell *matCellDef="let element">{{element.status}}
+                <!-- <ng-container *ngIf="element.status === 0"> Inactive </ng-container>
+                <ng-container *ngIf="element.status === 1"> Active </ng-container> -->
             </td>
         </ng-container>
 
@@ -87,13 +87,16 @@
                     <button mat-menu-item (click)="showEditBankForm(row);">
                         <mat-icon>edit</mat-icon> Edit
                     </button>
-                    <button mat-menu-item *ngIf="row.status == 1" (click)="deactivateModal(row.name)">
+                    <button mat-menu-item (click)="deleteModal(row.name,row.code);">
+                        <mat-icon>delete</mat-icon> Delete
+                    </button>
+                    <!-- <button mat-menu-item *ngIf="row.status == 1" (click)="deactivateModal(row.name)">
                         <mat-icon>delete</mat-icon> Deactivate
                     </button>
 
                     <button mat-menu-item *ngIf="row.status == 0" (click)="activateModal(row.name)">
                         <mat-icon>done_all</mat-icon> Activate
-                    </button>
+                    </button> -->
                 </mat-menu>
             </td>
         </ng-container>
@@ -172,8 +175,24 @@
                             </mat-error>
                         </mat-form-field>
                     </div>
+                    <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Status</mat-label>
+                            <mat-select formControlName="status" placeholder="Status">
+                                <mat-option [value]="1">Active</mat-option>
+                                <mat-option [value]="0">Inactive</mat-option>
+                            </mat-select>
+                            <mat-error
+                                *ngIf="bankForm.get('status')?.invalid && bankForm.get('status')?.touched">
+                                Status is required
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
 
-                    <button mat-raised-button color="primary" type="submit" class="btn btn-dark">Submit</button>
+                    <button mat-raised-button color="primary" type="submit" class="btn btn-dark">
+                        <span *ngIf="!loadingForm">Submit</span>
+                        <span *ngIf="loadingForm">Processing.......</span>
+                    </button>
                 </form>
             </div>
         </div>
@@ -193,12 +212,12 @@
         </div>
         <div class="custom-form">
             <div class="form">
-                <form [formGroup]="bankForm" (ngSubmit)="onSubmit()">
+                <form [formGroup]="bankEditForm" (ngSubmit)="onEdit()">
                     <div class="form-row">
                         <mat-form-field appearance="outline" class="form-field">
                             <mat-label>Code</mat-label>
-                            <input matInput formControlName="code" placeholder="Bank Code">
-                            <mat-error *ngIf="bankForm.get('code')?.invalid && bankForm.get('code')?.touched">
+                            <input matInput formControlName="code" placeholder="Bank Code" readonly>
+                            <mat-error *ngIf="bankEditForm.get('code')?.invalid && bankEditForm.get('code')?.touched">
                                 Bank Code is required
                             </mat-error>
                         </mat-form-field>
@@ -206,7 +225,7 @@
                         <mat-form-field appearance="outline" class="form-field">
                             <mat-label>Name</mat-label>
                             <input matInput formControlName="name" placeholder="Bank Name">
-                            <mat-error *ngIf="bankForm.get('name')?.invalid && bankForm.get('name')?.touched">
+                            <mat-error *ngIf="bankEditForm.get('name')?.invalid && bankEditForm.get('name')?.touched">
                                 Bank Name is required
                             </mat-error>
                         </mat-form-field>
@@ -216,7 +235,7 @@
                         <mat-form-field appearance="outline" class="form-field">
                             <mat-label>Branch</mat-label>
                             <input matInput formControlName="branch" placeholder="Branch">
-                            <mat-error *ngIf="bankForm.get('branch')?.invalid && bankForm.get('branch')?.touched">
+                            <mat-error *ngIf="bankEditForm.get('branch')?.invalid && bankEditForm.get('branch')?.touched">
                                 Branch is required
                             </mat-error>
                         </mat-form-field>
@@ -224,7 +243,7 @@
                         <mat-form-field appearance="outline" class="form-field">
                             <mat-label>Address</mat-label>
                             <input matInput formControlName="address" placeholder="Address">
-                            <mat-error *ngIf="bankForm.get('address')?.invalid && bankForm.get('address')?.touched">
+                            <mat-error *ngIf="bankEditForm.get('address')?.invalid && bankEditForm.get('address')?.touched">
                                 Address is required
                             </mat-error>
                         </mat-form-field>
@@ -234,7 +253,7 @@
                         <mat-form-field appearance="outline" class="form-field">
                             <mat-label>Customers</mat-label>
                             <input matInput formControlName="customers" placeholder="Number of Customers" type="number">
-                            <mat-error *ngIf="bankForm.get('customers')?.invalid && bankForm.get('customers')?.touched">
+                            <mat-error *ngIf="bankEditForm.get('customers')?.invalid && bankEditForm.get('customers')?.touched">
                                 Customers is required and must be a positive number
                             </mat-error>
                         </mat-form-field>
@@ -242,14 +261,63 @@
                         <mat-form-field appearance="outline" class="form-field">
                             <mat-label>Contact</mat-label>
                             <input matInput formControlName="contact" placeholder="Contact">
-                            <mat-error *ngIf="bankForm.get('contact')?.invalid && bankForm.get('contact')?.touched">
+                            <mat-error *ngIf="bankEditForm.get('contact')?.invalid && bankEditForm.get('contact')?.touched">
                                 Contact is required
                             </mat-error>
                         </mat-form-field>
                     </div>
+                    <div class="form-row">
+                        <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>status</mat-label>
+                            <input matInput formControlName="status" placeholder="status">
+                            <mat-error *ngIf="bankEditForm.get('status')?.invalid && bankEditForm.get('status')?.touched">
+                                status is required
+                            </mat-error>
+                        </mat-form-field>
+                        <!-- <mat-form-field appearance="outline" class="form-field">
+                            <mat-label>Status</mat-label>
+                            <mat-select formControlName="status" placeholder="Status">
+                                <mat-option [value]="1">Active</mat-option>
+                                <mat-option [value]="0">Inactive</mat-option>
+                            </mat-select>
+                            <mat-error
+                                *ngIf="bankEditForm.get('status')?.invalid && bankEditForm.get('status')?.touched">
+                                Status is required
+                            </mat-error>
+                        </mat-form-field> -->
+                    </div>
 
-                    <button mat-raised-button color="primary" type="submit" class="btn btn-dark">Submit</button>
+
+                    <button mat-raised-button color="primary" type="submit" class="btn btn-dark">
+                        <span *ngIf="!loadingForm">Submit</span>
+                        <span *ngIf="loadingForm">Processing.......</span>
+                    </button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="activate modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Delete</h5>
+                    <!-- <button type="button" class="close btn btn-dark"  data-dismiss="modal" aria-label="Close"
+                        (click)="closeActivateModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button> -->
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete : <b>{{selectedBankName }}</b> ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">No</button>
+                    <button type="button" class="btn btn-danger"  (click)="deleteSheet()">
+                        <span *ngIf="!loadingForm">Yes</span>
+                        <span *ngIf="loadingForm">Processing.......</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -294,7 +362,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" (click)="closeDeactivateModal()">No</button>
-                    <button type="button" class="btn btn-danger">Yes</button>
+                    <button type="button" class="btn btn-danger" >Yes</button>
                 </div>
             </div>
         </div>
