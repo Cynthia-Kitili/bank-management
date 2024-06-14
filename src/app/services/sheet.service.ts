@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Bank, BankAdmin } from '../models/sheet.model';
+import { Bank, BankAdmin, Customers } from '../models/sheet.model';
 
 @Injectable({
   providedIn: 'root'
@@ -58,6 +58,29 @@ export class SheetService {
   updateUserSheet(id: any, uniqueid: any, name: any,email: any, password: any,role: any, status: any,firstTimeLogin:any, bankCode:any, bankName:any): Observable<BankAdmin> {
     return this.http.put<BankAdmin>(`${environment.USERCONNECTION_URL}/${id}`,
       { uniqueid, name,email, password,role, status,firstTimeLogin, bankCode, bankName });
+  }
+
+
+  createCustomerSheet(uniqueid: any, name: any,email: any, gender: any,accountNumber: any, loanAmount: any,accountBalance:any,bankCode:any, bankName:any): Observable<Customers> {
+    return this.http.post<Customers>(`${environment.CUSTOMERCONNECTION_URL}`,
+      { uniqueid, name,email, gender,accountNumber, loanAmount,accountBalance,bankCode,bankName});
+  }
+
+  listCustomerSheet() {
+    return this.http.get(`${environment.CUSTOMERCONNECTION_URL}`);
+  }
+
+  deleteCustomerSheet(code: any) {
+    return this.http.delete(`${environment.CUSTOMERCONNECTION_URL}/${code}`);
+  }
+
+  getCustomerSheetDataById(id: number, ) {
+    return this.http.get(`${environment.CUSTOMERCONNECTION_URL}/${id}`);
+  }
+
+  updateCustomerSheet(id: any, uniqueid: any, name: any,email: any, gender: any,accountNumber: any, loanAmount: any,accountBalance:any,bankCode:any, bankName:any): Observable<Customers> {
+    return this.http.put<Customers>(`${environment.CUSTOMERCONNECTION_URL}/${id}`,
+      {uniqueid, name,email, gender,accountNumber, loanAmount,accountBalance,bankCode,bankName });
   }
 }
 

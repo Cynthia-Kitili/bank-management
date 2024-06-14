@@ -82,7 +82,7 @@ export class BanksComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.listData();
+    // this.listData();
   }
 
   listData() {

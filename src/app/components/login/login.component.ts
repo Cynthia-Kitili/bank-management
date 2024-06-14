@@ -67,6 +67,7 @@ export class LoginComponent {
             sessionStorage.setItem('username', user.name);
             sessionStorage.setItem('permission', user.role);
             sessionStorage.setItem('bankCode', user.bankCode);
+            sessionStorage.setItem('bankName', user.bankName);
           }
         } else {
           alert('Login Error')

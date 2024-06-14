@@ -3,30 +3,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { Router, ActivatedRoute } from '@angular/router';
+import { BankAdmin, Customers } from 'src/app/models/sheet.model';
+import { SheetService } from 'src/app/services/sheet.service';
 import * as XLSX from 'xlsx';
 
-
-export interface Customer {
-  code: string;
-  name: string;
-  branch: string;
-  address: string;
-  customers: number;
-  contact: string;
-  status:number;
-}
-
-const CUSTOMER_DATA: Customer[] = [
-  {code: 'BOA123', name: 'Bank of America', branch: 'Downtown', address: '123 Main St', customers: 1200, contact: '123-456-7890',status:1},
-  {code: 'CHASE456', name: 'Chase Bank', branch: 'Uptown', address: '456 Oak St', customers: 900, contact: '234-567-8901',status:0},
-  {code: 'WF789', name: 'Wells Fargo', branch: 'Midtown', address: '789 Pine St', customers: 1100, contact: '345-678-9012',status:1},
-  {code: 'BOA123', name: 'Bank of America', branch: 'Downtown', address: '123 Main St', customers: 1200, contact: '123-456-7890',status:0},
-  {code: 'CHASE456', name: 'Chase Bank', branch: 'Uptown', address: '456 Oak St', customers: 900, contact: '234-567-8901',status:0},
-  {code: 'WF789', name: 'Wells Fargo', branch: 'Midtown', address: '789 Pine St', customers: 1100, contact: '345-678-9012',status:1},
-  {code: 'BOA123', name: 'Bank of America', branch: 'Downtown', address: '123 Main St', customers: 1200, contact: '123-456-7890',status:0},
-  {code: 'CHASE456', name: 'Chase Bank', branch: 'Uptown', address: '456 Oak St', customers: 900, contact: '234-567-8901',status:1},
-  {code: 'WF789', name: 'Wells Fargo', branch: 'Midtown', address: '789 Pine St', customers: 1100, contact: '345-678-9012',status:0},
-];
 
 @Component({
   selector: 'app-customers',
@@ -34,43 +15,84 @@ const CUSTOMER_DATA: Customer[] = [
   styleUrls: ['./customers.component.css']
 })
 export class CustomersComponent implements OnInit {
-  displayedColumns: string[] = ['actions','code', 'name', 'branch', 'address', 'customers', 'contact','status'];
-  dataSource = new MatTableDataSource<Customer>();
+  displayedColumns: string[] = ['actions', 'uniqueid', 'name', 'email', 'gender', 'accountNumber', 'loanAmount', 'accountBalance'];
+  dataSource = new MatTableDataSource<BankAdmin>();
   loading = false;
 
-  customerForm!: FormGroup;
+  bankAdminForm!: FormGroup;
+  bankEditAdminForm!: FormGroup;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
 
-  addCustomerForm:any;
-  editCustomerForm:any;
+  addBankAdminForm: any;
+  editBankAdminForm: any;
   selectedRowData: any;
-  selectedCustomerName: any;
+  selectedName: any;
   showDeactivateModal: any;
   showActivateModal: any;
+  data: any;
+  loadingForm: any;
+  selectedContact: any;
+  bankCode: any;
+  permission: any;
+  bankName: any;
 
-  constructor(private formBuilder: FormBuilder) {
-    this.customerForm = this.formBuilder.group({
-      code: ['', Validators.required],
+  constructor(private formBuilder: FormBuilder, private sheetservice: SheetService, private router: Router, private actRoute: ActivatedRoute,) {
+    this.bankAdminForm = this.formBuilder.group({
+      uniqueid: ['', Validators.required],
       name: ['', Validators.required],
-      branch: ['', Validators.required],
-      address: ['', Validators.required],
-      customers: ['', [Validators.required, Validators.min(0)]],
-      contact: ['', Validators.required]
+      email: ['', Validators.required],
+      gender: ['', Validators.required],
+      accountNumber: ['', Validators.required],
+      accountBalance: ['', Validators.required],
+      loanAmount: ['', Validators.required],
+      bankCode: [{ value: this.bankCode, disabled: true }, Validators.required],
+      bankName: [{ value: this.bankName, disabled: true }, Validators.required],
+    });
+    this.bankEditAdminForm = this.formBuilder.group({
+      uniqueid: ['', Validators.required],
+      name: ['', Validators.required],
+      email: ['', Validators.required],
+      gender: ['', Validators.required],
+      accountNumber: ['', Validators.required],
+      accountBalance: ['', Validators.required],
+      loanAmount: ['', Validators.required],
+      bankCode: [{ value: this.bankCode, disabled: true }, Validators.required],
+      bankName: [{ value: this.bankName, disabled: true }, Validators.required],
     });
   }
 
   ngOnInit() {
-    // Simulate data fetching delay
+
+    this.bankCode = sessionStorage.getItem('bankCode');
+    this.permission = sessionStorage.getItem('permission');
+    this.bankName = sessionStorage.getItem('bankName');
+    this.listData();
+  }
+
+
+  listData() {
     this.loading = true;
-    setTimeout(() => {
-      this.loading = false;
-      this.dataSource.data = CUSTOMER_DATA;
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    }, 500); 
+    this.sheetservice.listCustomerSheet().subscribe({
+      next: (res: any) => {
+        console.log(res);
+        // Filter the data based on the bankCode
+        this.data = res;
+        const filteredData = res.filter((customer: any) => customer.bankCode === this.bankCode);
+        console.log('filtered bank data', filteredData);
+        setTimeout(() => {
+          this.loading = false;
+          this.dataSource.data = filteredData;
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        }, 500);
+      },
+      error: (error) => {
+        console.log(error);
+      },
+    });
   }
 
   applyFilter(event: Event) {
@@ -82,57 +104,60 @@ export class CustomersComponent implements OnInit {
     }
   }
 
-  showAddCustomerForm(){
-    this.addCustomerForm = true;
+  showAddBankAdminForm() {
+    this.addBankAdminForm = true;
   }
-  hideAddCustomerForm(){
-    this.addCustomerForm = false;
+  hideAddBankAdminForm() {
+    this.addBankAdminForm = false;
     setTimeout(() => {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     }, 200);
   }
 
-  showEditCustomerForm(rowData: Customer){
+  showEditBankAdminForm(rowData: Customers) {
     this.selectedRowData = rowData; // Assign the selected row's data to the property
-    this.editCustomerForm = true;
+    this.editBankAdminForm = true;
     // Pre-fill the form fields with the data of the selected row
-    this.customerForm.patchValue({
-      code: rowData.code,
+    this.bankEditAdminForm.patchValue({
+      uniqueid: rowData.uniqueid,
       name: rowData.name,
-      branch: rowData.branch,
-      address: rowData.address,
-      customers: rowData.customers,
-      contact: rowData.contact
+      email: rowData.email,
+      gender: rowData.gender,
+      accountNumber: rowData.accountNumber,
+      loanAmount: rowData.loanAmount,
+      accountBalance: rowData.accountBalance,
+      bankCode: rowData.bankCode,
+      bankName: rowData.bankName
     });
-    
+
   }
-  hideEditBankForm(){
-    this.editCustomerForm = false;
+  hideEditBankAdminForm() {
+    this.editBankAdminForm = false;
     setTimeout(() => {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     }, 200);
   }
 
-  activateModal(bankName: string) {
-    this.selectedCustomerName = bankName;
+  activateModal(fullname: string) {
+    this.selectedName = fullname;
     const modal = document.getElementById('activateModal');
     modal?.classList.add('show');
     modal?.setAttribute('aria-modal', 'true');
     modal?.setAttribute('style', 'display: block;');
   }
-  
+
   closeActivateModal() {
     const modal = document.getElementById('activateModal');
     modal?.classList.remove('show');
     modal?.setAttribute('aria-modal', 'false');
     modal?.setAttribute('style', 'display: none;');
-    this.selectedCustomerName = '';
+    this.selectedName = '';
   }
 
-  deactivateModal(bankName: string) {
-    this.selectedCustomerName = bankName;
+  deactivateModal(fullname: string) {
+    this.selectedName = fullname;
     const modal = document.getElementById('deactivateModal');
     modal?.classList.add('show');
     modal?.setAttribute('aria-modal', 'true');
@@ -144,13 +169,115 @@ export class CustomersComponent implements OnInit {
     modal?.classList.remove('show');
     modal?.setAttribute('aria-modal', 'false');
     modal?.setAttribute('style', 'display: none;');
-    this.selectedCustomerName = '';
+    this.selectedName = '';
+  }
+  deleteModal(userfullname: string, accountNumber: any) {
+    this.selectedName = userfullname;
+    this.selectedContact = accountNumber;
+    const modal = document.getElementById('deleteModal');
+    modal?.classList.add('show');
+    modal?.setAttribute('aria-modal', 'true');
+    modal?.setAttribute('style', 'display: block;');
   }
 
+  closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal?.classList.remove('show');
+    modal?.setAttribute('aria-modal', 'false');
+    modal?.setAttribute('style', 'display: none;');
+    this.selectedName = '';
+    setTimeout(() => {
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    }, 200);
+  }
+  deleteSheet() {
+    this.loadingForm = true;
+    const index = this.data.findIndex((user: any) => user.contact === this.selectedContact);
+    this.sheetservice.deleteCustomerSheet(index).subscribe(
+      (res: any) => {
+        this.loadingForm = false;
+        console.log(res);
+        this.listData();
+        this.closeDeleteModal();
+      },
+      (error) => {
+        this.loadingForm = false;
+        console.log(error);
+      }
+    );
+    console.log(this.selectedContact);
+  }
+
+
   onSubmit() {
-    if (this.customerForm.valid) {
+    if (this.bankAdminForm.valid) {
+      this.loadingForm = true;
+
+      this.bankAdminForm.get('bankCode')?.enable();
+      this.bankAdminForm.get('bankName')?.enable();
+
+      const formValue = this.bankAdminForm.value;
+      console.log('Form value before posting:', formValue);
+
+      this.bankAdminForm.get('bankCode')?.disable();
+       this.bankAdminForm.get('bankName')?.disable();
+
+      const { uniqueid, name, email, gender, accountNumber, loanAmount, accountBalance, bankCode, bankName } = formValue;
+
+      this.sheetservice.createCustomerSheet(uniqueid, name, email, gender, accountNumber, loanAmount, accountBalance, bankCode, bankName).subscribe({
+        next: (res) => {
+          console.log('Create response:', res);
+          if (res) {
+            this.loadingForm = false;
+            this.listData();
+            this.hideAddBankAdminForm();
+          }
+        },
+        error: (error) => {
+          this.loadingForm = false;
+          console.error('Error creating sheet:', error);
+        }
+      });
+    } else {
+      this.loadingForm = false;
+      console.log("Form is invalid!");
+    }
+  }
+
+  onEdit() {
+    if (this.bankEditAdminForm.valid) {
+      this.loadingForm = true;
       // Proceed with form submission
-      console.log(this.customerForm.value);
+      console.log(this.bankEditAdminForm.value);
+
+      this.bankAdminForm.get('bankCode')?.enable();
+       this.bankAdminForm.get('bankName')?.enable();
+
+
+      const formValue = this.bankEditAdminForm.value;
+      console.log('Form value before posting:', formValue);
+
+      this.bankAdminForm.get('bankCode')?.disable();
+       this.bankAdminForm.get('bankName')?.disable();
+
+      const { uniqueid, name, email, gender, accountNumber, loanAmount, accountBalance, bankCode, bankName } = formValue;
+      const index = this.data.findIndex((user: any) => user.uniqueid === uniqueid);
+
+      this.sheetservice.updateCustomerSheet(index, uniqueid, name, email, gender, accountNumber, loanAmount, accountBalance, bankCode, bankName).subscribe({
+        next: (res) => {
+          console.log(res);
+          if (res) {
+            this.loadingForm = false;
+            this.listData();
+            this.hideEditBankAdminForm();
+          }
+        },
+        error: (error) => {
+          this.loadingForm = false;
+          console.log(error);
+        },
+      });
     } else {
       // Display error messages or handle invalid form
       console.log("Form is invalid!");
@@ -158,25 +285,27 @@ export class CustomersComponent implements OnInit {
   }
 
 
+
+
   exportToExcel(): void {
     const currentDate = new Date();
     const fileName = `customers_${currentDate.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(/\//g, '-')}.xlsx`;
-  
+
     // Clone the dataSource array to avoid modifying the original data
     const dataToExport = this.dataSource.data.map(row => ({ ...row }));
-  
+
     // Remove the action field from each row
     dataToExport.forEach((row: any) => {
       delete row.actions;
     });
-  
+
     // Convert the modified data to Excel sheet
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataToExport);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Customers');
-  
+    XLSX.utils.book_append_sheet(wb, ws, 'customers');
+
     // Save the Excel file
     XLSX.writeFile(wb, fileName);
   }
-  
+
 }

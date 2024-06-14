@@ -12,13 +12,13 @@ export const navbarData: INavbarData[] = [
         routeLink: 'banks',
         icon: '/assets/images/diagram-3-fill.png',
         label: 'Bank Management',
-        access: 'Admin,Bank Admin'
+        access: 'Admin'
     },
     {
         routeLink: 'customers',
         icon: '/assets/images/people-fill.png',
         label: 'Customer Management',
-        access: 'BANK ADMIN'
+        access: 'Bank Admin'
     },
     {
         routeLink: 'users',

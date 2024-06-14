@@ -64,7 +64,7 @@ export class UsersComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.listData();
+    // this.listData();
   }
 
 
